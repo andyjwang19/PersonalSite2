@@ -20,13 +20,18 @@ function Three() {
     // scene
 
     scene = new THREE.Scene();
+    scene.background = new THREE.TextureLoader().load("./sky.jpg");
+    // scene.fog = new THREE.Fog("#808080");
 
-    var ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
+    var ambientLight = new THREE.AmbientLight(0xcccccc, 2);
     scene.add(ambientLight);
 
-    var pointLight = new THREE.PointLight(0xffffff, 500);
-    pointLight.position.set(0, 0, 250);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+    directionalLight.position.set(0.5, 0.5, 0.5);
+
+    // pointLight.position.set(0, 0, 250);
     // camera.add(pointLight);
+    scene.add(directionalLight);
     scene.add(camera);
     camera.lookAt(scene.position);
 
