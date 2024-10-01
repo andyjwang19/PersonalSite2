@@ -2,10 +2,18 @@ import { useEffect, useRef } from "react";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from "three";
+import useMousePosition from "./useMousePosition";
 
 function Three() {
   const refContainer = useRef<HTMLDivElement>(null);
+
+  const refMouseCoords = useRef<{x: number, y: number}> ({x:0,y: 0});
+  document.addEventListener('mousemove', function(e) {
+    refMouseCoords.current = getMousePos(e);
+  });
+
   useEffect(() => {
     // === THREE.JS CODE START ===
     var scene = new THREE.Scene();
@@ -26,8 +34,9 @@ function Three() {
     var ambientLight = new THREE.AmbientLight(0xcccccc, 2);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-    directionalLight.position.set(0.5, 0.5, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
+    // directionalLight.position.set(0.5, 0.5, 0.5);
+    directionalLight.position.set(0.2,0,1);
 
     // pointLight.position.set(0, 0, 250);
     // camera.add(pointLight);
@@ -40,57 +49,44 @@ function Three() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     refContainer.current?.appendChild(renderer.domElement);
     var controls = new OrbitControls(camera, renderer.domElement);
-    new MTLLoader()
-      .setPath("materials/")
-      .load("model.mtl", function (materials) {
-        materials.preload();
+    var a_letter: any;
+    new GLTFLoader()
+      .setPath("models/lower_a/")
+      .load("24_09_27_19_03_20_342.gltf", (data)=>{
+        a_letter = data.scene
+        a_letter.rotation.set(0, Math.PI, 0)
+        a_letter.position .set(0,-50,0)
+        a_letter.scale.set(0.5,0.5,0.5)
+        scene.add(a_letter)
+      })
+    
 
-        new OBJLoader()
-          .setMaterials(materials)
-          .setPath("models/")
-          .load(
-            "obj.obj",
-            function (object) {
-              // object.position.y = -0.95;
-              // object.scale.setScalar(0.01);
-              scene.add(object);
-            },
-            function (xhr) {
-              if (xhr.lengthComputable) {
-                const percentComplete = (xhr.loaded / xhr.total) * 100;
-                console.log(percentComplete.toFixed(2) + "% downloaded");
-              }
-            }
-          );
-      });
-
-    // var loader = new OBJLoader();
-    // var mtlLoader = new MTLLoader();
-    // loader.load("models/obj.obj", function (obj) {
-    //   // center asset
-
-    //   // var box = new THREE.Box3().setFromObject(obj);
-    //   // var center = new THREE.Vector3();
-    //   // box.getCenter(center);
-    //   // obj.position.sub(center);
-
-    //   // add to scene
-    //   obj.traverse(function (child) {
-    //     if (child instanceof THREE.Mesh) {
-    //       mtlLoader.load("materials/model.mtl", (mdl)=>{
-
-    //       })
-    //       child.material = new THREE.MeshBasicMaterial({ color: "red" });
-    //     }
-    //   });
-    //   // obj.scale.set(0.1, 0.1, 0.1);
-    //   obj.position.set(0, 0, 0);
-
-    //   console.log(obj.children);
-    //   scene.add(obj);
-    // });
-
+      // console.log("MOUSE", MousePosition)
     function animate() {
+      // console.log(refMouseCoords)
+
+
+          const targetX = refMouseCoords.current.x * .001
+          const targetY = refMouseCoords.current.y * .001
+        
+          // const elapsedTime = clock.getElapsedTime()
+        
+          // //Update objects - increase number to create automated animation
+          // sphere.rotation.x = 0 * elapsedTime
+          // sphere.rotation.y = 0 * elapsedTime
+
+          if (a_letter !== undefined){
+            // a_letter.rotation.x += 2 * (targetY - a_letter.rotation.x)
+            a_letter.rotation.y = targetX
+            a_letter.rotation.x = targetY
+          }
+        
+          // sphere.rotation.x += 2 * (targetY - sphere.rotation.x)
+          // sphere.rotation.y += 1.5 * (targetX - sphere.rotation.y)
+          // // NewCode
+          // if (myModel){
+          //   myModel.rotation.copy(sphere.rotation.clone())
+          // }
       requestAnimationFrame(animate);
 
       // required if controls.enableDamping or controls.autoRotate are set to true
@@ -101,6 +97,9 @@ function Three() {
     animate();
   }, []);
   return <div ref={refContainer}></div>;
+}
+function getMousePos(e: MouseEvent) {
+  return { x: e.clientX, y: e.clientY };
 }
 
 export default Three;
