@@ -9,8 +9,8 @@ import useMousePosition from "./useMousePosition";
 function Three() {
   const refContainer = useRef<HTMLDivElement>(null);
 
-  const refMouseCoords = useRef<{x: number, y: number}> ({x:0,y: 0});
-  document.addEventListener('mousemove', function(e) {
+  const refMouseCoords = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  document.addEventListener("mousemove", function (e) {
     refMouseCoords.current = getMousePos(e);
   });
 
@@ -36,7 +36,7 @@ function Three() {
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
     // directionalLight.position.set(0.5, 0.5, 0.5);
-    directionalLight.position.set(0.2,0,1);
+    directionalLight.position.set(0.2, 0, 1);
 
     // pointLight.position.set(0, 0, 250);
     // camera.add(pointLight);
@@ -50,43 +50,61 @@ function Three() {
     refContainer.current?.appendChild(renderer.domElement);
     var controls = new OrbitControls(camera, renderer.domElement);
     var a_letter: any;
-    new GLTFLoader()
-      .setPath("models/lower_a/")
-      .load("24_09_27_19_03_20_342.gltf", (data)=>{
-        a_letter = data.scene
-        a_letter.rotation.set(0, Math.PI, 0)
-        a_letter.position .set(0,-50,0)
-        a_letter.scale.set(0.5,0.5,0.5)
-        scene.add(a_letter)
-      })
-    
 
-      // console.log("MOUSE", MousePosition)
+    const load_model = (scene: THREE.Scene, path: string, position: number) => {
+      var letter: any;
+      new GLTFLoader().setPath(path).load("model.gltf", (data) => {
+        letter = data.scene;
+        letter.rotation.set(0, Math.PI, 0);
+        letter.position.set(position, -50, 0);
+        letter.scale.set(0.5, 0.5, 0.5);
+        scene.add(letter);
+      });
+      return letter;
+    };
+    a_letter = load_model(scene, "models/lower_n/", -100);
+    // new GLTFLoader().setPath("models/lower_n/").load("model.gltf", (data) => {
+    //   a_letter = data.scene;
+    //   a_letter.rotation.set(0, Math.PI, 0);
+    //   a_letter.position.set(-100, -50, 0);
+    //   a_letter.scale.set(0.5, 0.5, 0.5);
+    //   scene.add(a_letter);
+    // });
+
+    var d_letter: any;
+    new GLTFLoader().setPath("models/lower_d/").load("model.gltf", (data) => {
+      d_letter = data.scene;
+      d_letter.rotation.set(0, Math.PI, 0);
+      d_letter.position.set(0, -50, 0);
+      d_letter.scale.set(0.5, 0.5, 0.5);
+      scene.add(d_letter);
+    });
+
+    // console.log("MOUSE", MousePosition)
     function animate() {
       // console.log(refMouseCoords)
 
+      const targetX = refMouseCoords.current.x * 0.001;
+      const targetY = refMouseCoords.current.y * 0.001;
 
-          const targetX = refMouseCoords.current.x * .001
-          const targetY = refMouseCoords.current.y * .001
-        
-          // const elapsedTime = clock.getElapsedTime()
-        
-          // //Update objects - increase number to create automated animation
-          // sphere.rotation.x = 0 * elapsedTime
-          // sphere.rotation.y = 0 * elapsedTime
+      // const elapsedTime = clock.getElapsedTime()
 
-          if (a_letter !== undefined){
-            // a_letter.rotation.x += 2 * (targetY - a_letter.rotation.x)
-            a_letter.rotation.y = targetX
-            a_letter.rotation.x = targetY
-          }
-        
-          // sphere.rotation.x += 2 * (targetY - sphere.rotation.x)
-          // sphere.rotation.y += 1.5 * (targetX - sphere.rotation.y)
-          // // NewCode
-          // if (myModel){
-          //   myModel.rotation.copy(sphere.rotation.clone())
-          // }
+      // //Update objects - increase number to create automated animation
+      // sphere.rotation.x = 0 * elapsedTime
+      // sphere.rotation.y = 0 * elapsedTime
+
+      if (a_letter !== undefined) {
+        // a_letter.rotation.x += 2 * (targetY - a_letter.rotation.x)
+        a_letter.rotation.y = targetX;
+        a_letter.rotation.x = targetY;
+      }
+
+      // sphere.rotation.x += 2 * (targetY - sphere.rotation.x)
+      // sphere.rotation.y += 1.5 * (targetX - sphere.rotation.y)
+      // // NewCode
+      // if (myModel){
+      //   myModel.rotation.copy(sphere.rotation.clone())
+      // }
       requestAnimationFrame(animate);
 
       // required if controls.enableDamping or controls.autoRotate are set to true
